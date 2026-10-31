@@ -30,13 +30,31 @@ app.command("/moonbot-spacepic",async({ack,respond}) => {
     await ack();
 
     try{
-        const response = await axios.get("https://nasa.gov");
-        const spaceData =  response.data[0];
+        const response = await axios.get("https://images-api.nasa.gov/search", {
+            params: {
+                q: "nebula galaxy universe stars",
+                media_type: "image",
+                page_size: 100
+            }
+        });
+        const items = response.data.collection.items.filter(item =>
+            item.data?.[0] &&
+            item.links?.some(link => link.render === "image" && link.href.endsWith(".jpg"))
+        );
+        if (!items.length) {
+            throw new Error("NASA returned no images");
+        }
+
+        const item = items[Math.floor(Math.random() * items.length)];
+        const spaceData = item.data[0];
+        const imageLink = item.links.find(link =>
+            link.render === "image" && link.href.endsWith(".jpg")
+        );
 
         await respond({
             blocks: [
                 {
-                    type:"section",
+                    type: "section",
                     text: {
                         type: "mrkdwn",
                         text: `*${spaceData.title}*`
@@ -46,16 +64,17 @@ app.command("/moonbot-spacepic",async({ack,respond}) => {
                     type: "image",
                     title: {
                         type: "plain_text",
-                        text: spaceData.Data.title
+                        text: spaceData.title.slice(0, 150)
                     },
-                    image_url: spaceData.url,
-                    alt_text: spaceData.title
+                    image_url: imageLink.href,
+                    alt_text: spaceData.title.slice(0, 150)
                 },
                 {
                     type: "section",
                     text: {
                         type: "mrkdwn",
-                        text: spaceData.explanation
+                        text: (spaceData.description || "NASA image of the universe.")
+                            .slice(0, 3000)
                     }
                 }
             ]
@@ -65,20 +84,30 @@ app.command("/moonbot-spacepic",async({ack,respond}) => {
     }
 });
 
+app.command("/moonbot-moonfact", async({ack,respond}) => {
+    await ack();
+    const facts = [
+        "The Moon is Earth's only natural satellite.",
+        "The Moon is about 384,400 km from Earth on average.",
+        "The Moon has no atmosphere, so its sky appears black even during the day.",
+        "A day on the Moon lasts about 29.5 Earth days.",
+        "The Moon is moving away from Earth at about 3.8 cm per year."
+    ];
+    await respond({ text: facts[Math.floor(Math.random() * facts.length)] });
+});
+
 app.command("/moonbot-joke", async({ack,respond}) => {
     await ack();
 
     try{
         const response = await axios.get("https://official-joke-api.appspot.com/random_joke");
-        await response({
-            text:
-            `${response.data.setup}`
-            `${response.data.punchline}`
+        await respond({
+            text: `${response.data.setup}\n${response.data.punchline}`
         });
     } catch(err) {
         await respond({ text: "Failed to fetch some humour."});
     }
-})
+});
 
 (async () => {
     await app.start();
