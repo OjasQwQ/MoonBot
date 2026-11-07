@@ -1,6 +1,10 @@
+import 'dotenv/config';
+import pkg from '@slack/bolt';
+import axios from 'axios';
+import {getPlayer, exploreSpace} from './cosmicRPG.js';
 require("dotenv").config();
 
-const { App } = require('@slack/bolt');
+const { App } = pkg;
 const axios = require("axios");
 
 const app = new App({
@@ -8,6 +12,50 @@ const app = new App({
     appToken: process.env.SLACK_APP_TOKEN,
     socketMode:true
 })
+
+app.command('/explore', async ({ command, ack, respond }) => {
+    await ack();
+
+    try{
+        const player = getPlayer(command.user_id, command.user_name);
+        const result = exploreSpace(player);
+
+        if (result.type === 'cooldown') {
+            return await respond ({
+                respond_type: 'ephemeral',
+                text: result.text,
+            });
+        }
+
+        await respond({
+            response_type: 'in_channel',
+            blocks: [
+                {
+                    type: 'section',
+                    text: {
+                        type: 'mrkdwn',
+                        text: '*<@${command.user_id}> explored deep space!*\n\n${result.text}'
+                    },
+                },
+                {
+                    type: 'context',
+                    elements: [
+                        {
+                            type: 'mrkdwn',
+                            text: `🔋 *Hull:* ${player.hull}% | 🪙 *Credits:* ${player.credits} | 🌌 *Stardust:* ${player.cargo.stardust}`,
+                        },
+                    ],   
+                },
+            ],
+        });
+    }catch(error) {
+        console.error('Error Handling /explore:', error);
+        await respond({
+            response_type: 'ephemeral',
+            text: ' An error occured while navigating',
+        });
+    }
+}); 
 
 app.command("/moonbot-ping",async({command,ack,respond})=>{
     const start=Date.now();
