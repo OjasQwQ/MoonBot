@@ -2,10 +2,8 @@ import 'dotenv/config';
 import pkg from '@slack/bolt';
 import axios from 'axios';
 import {getPlayer, exploreSpace} from './cosmicRPG.js';
-require("dotenv").config();
 
 const { App } = pkg;
-const axios = require("axios");
 
 const app = new App({
     token: process.env.SLACK_BOT_TOKEN,
@@ -13,7 +11,7 @@ const app = new App({
     socketMode:true
 })
 
-app.command('/explore', async ({ command, ack, respond }) => {
+app.command('/moonbot-explore', async ({ command, ack, respond }) => {
     await ack();
 
     try{
@@ -34,7 +32,7 @@ app.command('/explore', async ({ command, ack, respond }) => {
                     type: 'section',
                     text: {
                         type: 'mrkdwn',
-                        text: '*<@${command.user_id}> explored deep space!*\n\n${result.text}'
+                        text: `*<@${command.user_id}> explored deep space!*\n\n${result.text}`
                     },
                 },
                 {
@@ -157,7 +155,7 @@ app.command("/moonbot-joke", async({ack,respond}) => {
     }
 });
 
-app.command("/astronauts", async({ ack,respond }) => {
+app.command("/moonbot-astronauts", async({ ack,respond }) => {
     await ack();
 
     try{

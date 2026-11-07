@@ -19,10 +19,10 @@ function exploreSpace(player) {
     const now = Date.now();
     const timeElapsed = now - player.lastAction;
     if (timeElapsed < EXPLORE_COOLDOWN) {
-        const remaining = Math.ceil((EXPLORE_COOLDOWN - timeElapsed) - 1000);
+        const remaining = Math.ceil((EXPLORE_COOLDOWN - timeElapsed) / 1000);
         return {
             type: "cooldown",
-            text: '⏳ *Thrusters Cooling Down!* Ready to jump in *${remaining}s*.'
+            text: `⏳ *Thrusters Cooling Down!* Ready to jump in *${remaining}s*.`
         };
     }
     player.lastAction = now;
@@ -56,7 +56,7 @@ function exploreSpace(player) {
         player.credits += reward;
         return {
             type: "combat",
-            text: "*Victory!* You defeated an automated rogue drone. \n Hull integrity dropped by *${damage}%*. Recovered *${reward} credits* from the wreckage."
+            text: `*Victory!* You defeated an automated rogue drone. \n Hull integrity dropped by *${damage}%*. Recovered *${reward} credits* from the wreckage.`
         };
     }
     else {

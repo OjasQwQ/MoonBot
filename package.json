@@ -4,7 +4,7 @@
   "type" : "module",
   "main": "cosmicRPG.js",
   "scripts" : {
-    "start": "node cosmicRPG.js"
+    "start": "node index.js"
   },
   "dependencies": {
     "@slack/bolt": "^5.1.0",
