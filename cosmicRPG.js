@@ -67,4 +67,4 @@ function exploreSpace(player) {
         };
     }
 }
-module.exports =  { getPlayer, exploreSpace };
+export{ getPlayer, exploreSpace };
