@@ -157,24 +157,24 @@ app.command("/moonbot-joke", async({ack,respond}) => {
     }
 });
 
-app.command("/astronauts", async({ command,ack,respond }) => {
+app.command("/astronauts", async({ ack,respond }) => {
     await ack();
 
     try{
-        const response = await axios.get("http://open-notify.org");
-        const totalNumber = response.number;
-        const names = response.people.map(package => " ${p.name} (${p.craft}").join("\n");
+        const response = await axios.get('http://api.open-notify.org/astros.json');
+        const {number: totalNumber, people} = response.data;
+        const names = people.map((p) => `• ${p.name} (${p.craft})`).join('\n');
 
             await respond({
-                text: "There are currently *${totalNumber}* humans in space right now! \n\n${names}"
+                text: `There are currently *${totalNumber}* humans in space right now! \n\n${names}`,
             });
     } catch(error) {
-        await respond("Lost connection to the space station. Try again later!")
+        await respond({text: "Lost connection to the space station. Try again later!"})
     }
 
-})
+});
 
 (async () => {
     await app.start();
-    console.log("bot is running!");
+    console.log("Bot is running!");
 })();
