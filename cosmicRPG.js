@@ -1,4 +1,5 @@
 const players = new Map();
+const EXPLORE_COOLDOWN = 6000*100;
 
 function getPlayer(userId, username) {
     if (!players.has(userId)) {
@@ -11,10 +12,21 @@ function getPlayer(userId, username) {
             lastAction:0
         });
     }
-    return players.get(userID);
+    return players.get(userId);
 }
 
 function exploreSpace(player) {
+    const now = Date.now();
+    const timeElapsed = now - player.lastAction;
+    if (timeElapsed < EXPLORE_COOLDOWN) {
+        const remaining = Math.ceil((EXPLORE_COOLDOWN - timeElapsed) - 1000);
+        return {
+            type: "cooldown",
+            text: '⏳ *Thrusters Cooling Down!* Ready to jump in *${remaining}s*.'
+        };
+    }
+    player.lastAction = now;
+
     const roll = Math.random();
 
     if (roll < 0.40) {
@@ -23,7 +35,7 @@ function exploreSpace(player) {
         player.credits += amount * 2;
         return{
             type: "mine",
-            text: "*Asteroid Mined!* You found a rich vein of stardust. \n Collected *${amount} Stardust* and earned *{amount * 2} credits*."
+            text: `*Asteroid Mined!* You found a rich vein of stardust. \n Collected *${amount} Stardust* and earned *${amount * 2} credits*.`
         };
     }
 
@@ -37,22 +49,22 @@ function exploreSpace(player) {
             player.credits = Math.max(0, player.credits - 20);
             return {
                 type: "defeat",
-                text: "*Ambush!* A Space Pirate fleet attacked. Your ship took catastrophic damage! \n Emegency warp activated. Required to 50% Hull. Lost *20 credits*."
+                text: "*Ambush!* A Space Pirate fleet attacked. Your ship took catastrophic damage! \n Emergency warp activated. Repaired to 50% Hull. Lost *20 credits*."
             };
         }
 
         player.credits += reward;
         return {
-            type: "Combat",
-            text: "*Victory!* You defeated an automated rogue drone. \n Hullintegrity dropped by *${damage}%*. Recovered *${reward} credits* from the wreckage."
+            type: "combat",
+            text: "*Victory!* You defeated an automated rogue drone. \n Hull integrity dropped by *${damage}%*. Recovered *${reward} credits* from the wreckage."
         };
     }
     else {
         player.hull = Math.min(100, player.hull + 20);
         return {
             type: "event",
-            text: "*Nebula Drift:* You coasted through a glowing bio-luminiscent nebula. \n The radiation recharged your ship's shields and repaired *20% Hull*!"
+            text: "*Nebula Drift:* You coasted through a glowing bio-luminescent nebula. \n The radiation recharged your ship's shields and repaired *20% Hull*!"
         };
     }
 }
-module.exports = { getPlayer, exploreSpace };
+module.exports =  { getPlayer, exploreSpace };

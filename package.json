@@ -1,4 +1,11 @@
 {
+  "name": "moonbot",
+  "version": "1.0.0",
+  "type" : "module",
+  "main": "cosmicRPG.js",
+  "scripts" : {
+    "start": "node cosmicRPG.js"
+  },
   "dependencies": {
     "@slack/bolt": "^5.1.0",
     "axios": "^1.21.0",
